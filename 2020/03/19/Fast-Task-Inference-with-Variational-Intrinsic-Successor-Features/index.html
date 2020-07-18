@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!-- <link rel="stylesheet" type="text/css" href="/css/matery.css"> -->
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Fast Task Inference with Variational Intrinsic Successor Features | Hamish的科研blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content>
+    <meta name="description" content="摘要已经确定，张成马尔可夫决策过程可控子空间的多样性行为可以通过奖励与其他policy有区别的policy来训练(Gregor et al., 2016; Eysenbach et al., 2018; Warde-Farley et al., 2018)。但是，这种方法的一个局限性是难以推广到超出可明确学习的有限行为集的范围，而这在后续任务中可能是必需的。Successor features(D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fast Task Inference with Variational Intrinsic Successor Features">
+<meta property="og:url" content="https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/index.html">
+<meta property="og:site_name" content="Hamish的科研blog">
+<meta property="og:description" content="摘要已经确定，张成马尔可夫决策过程可控子空间的多样性行为可以通过奖励与其他policy有区别的policy来训练(Gregor et al., 2016; Eysenbach et al., 2018; Warde-Farley et al., 2018)。但是，这种方法的一个局限性是难以推广到超出可明确学习的有限行为集的范围，而这在后续任务中可能是必需的。Successor features(D">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/sherlockbear/picrepo/master/img/2020-03-19_Hansen_DeepMind_et_al._-_2019_-_Fast_Task_Inferenc_56.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/sherlockbear/picrepo/master/img/2020-03-13_Mendeley_Desktop_28.png">
+<meta property="og:updated_time" content="2020-04-11T08:53:07.772Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Fast Task Inference with Variational Intrinsic Successor Features">
+<meta name="twitter:description" content="摘要已经确定，张成马尔可夫决策过程可控子空间的多样性行为可以通过奖励与其他policy有区别的policy来训练(Gregor et al., 2016; Eysenbach et al., 2018; Warde-Farley et al., 2018)。但是，这种方法的一个局限性是难以推广到超出可明确学习的有限行为集的范围，而这在后续任务中可能是必需的。Successor features(D">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/sherlockbear/picrepo/master/img/2020-03-19_Hansen_DeepMind_et_al._-_2019_-_Fast_Task_Inferenc_56.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Hamish的科研blog" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/img/avatar.jpg">
+    <link rel="stylesheet" href="/css/style.css?v=1.7.2">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head --><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+
+    
+</head>
+
+<body>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Kang Yachen</h5>
+          <a href="mailto:kangyachen@westlake.edu.cn" title="kangyachen@westlake.edu.cn" class="mail">kangyachen@westlake.edu.cn</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                Home
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/categories"  >
+                <i class="icon icon-lg icon-th-list"></i>
+                Categories
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/sherlockbear" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Fast Task Inference with Variational Intrinsic Successor Features</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Fast Task Inference with Variational Intrinsic Successor Features</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2020-03-19T03:21:00.000Z" itemprop="datePublished" class="page-time">
+  2020-03-19
+</time>
+
+
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/paper笔记/">paper笔记</a></li></ul>
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#摘要"><span class="post-toc-number">1.</span> <span class="post-toc-text">摘要</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#论文信息"><span class="post-toc-number">2.</span> <span class="post-toc-text">论文信息</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#内容简记"><span class="post-toc-number">3.</span> <span class="post-toc-text">内容简记</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#方法"><span class="post-toc-number">4.</span> <span class="post-toc-text">方法</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#实验"><span class="post-toc-number">5.</span> <span class="post-toc-text">实验</span></a></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Fast Task Inference with Variational Intrinsic Successor Features</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2020-03-19 11:21:00" datetime="2020-03-19T03:21:00.000Z"  itemprop="datePublished">2020-03-19</time>
+
+            
+	<ul class="article-category-list"><li class="article-category-list-item"><a class="article-category-list-link" href="/categories/paper笔记/">paper笔记</a></li></ul>
+
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h3 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a><strong>摘要</strong></h3><p>已经确定，张成马尔可夫决策过程可控子空间的多样性行为可以通过奖励与其他policy有区别的policy来训练(Gregor et al., 2016; Eysenbach et al., 2018; Warde-Farley et al., 2018)。但是，这种方法的一个局限性是难以推广到超出可明确学习的有限行为集的范围，而这在后续任务中可能是必需的。Successor features(Dayan, 1993; Barreto et al., 2017)提供了一个吸引人的解决方案，适用于此泛化问题，但需要在某些基础特征空间中将奖励函数定义为线性。在本文中，我们展示了可以将这两种技术结合使用，并且相互可以解决彼此的主要局限。为此，<strong>我们引入了Variational Intrinsic Successor FeatuRes（VISR），这是一种新的算法，能够学习可控特征，可通过Successor features框架利用可控特征来提供增强的泛化能力和快速的任务推断能力</strong>。我们在全部Atari套件上对VISR进行了实验验证，我们使用了新的设置，其中奖励仅是在漫长的无监督阶段之后才短暂显示。在12场比赛中达到人类水平的表现并超过所有baselines，使我们认为VISR代表了朝着能够从有限的反馈中快速学习的智能体迈出的一步。</p>
+<a id="more"></a>
+<h3 id="论文信息"><a href="#论文信息" class="headerlink" title="论文信息"></a>论文信息</h3><!-- 图片 -->
+<figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://raw.githubusercontent.com/sherlockbear/picrepo/master/img/2020-03-19_Hansen_DeepMind_et_al._-_2019_-_Fast_Task_Inferenc_56.png" alt title>
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<ul>
+<li>作者：Hansen DeepMind, S., Dabney DeepMind, W., Barreto DeepMind, A., Warde-Farley DeepMind, D., Van de Wiele, T., &amp; Mnih DeepMind, V.</li>
+<li>出处：ICLR2020 Oral</li>
+<li>机构：DeepMind</li>
+<li>关键词：diverse behavior，Successor features</li>
+<li><a href="https://openreview.net/forum?id=BJeAHkrYDS" target="_blank" rel="noopener">论文链接</a><!-- * 开源代码： -->
+<!-- * 其他资料： -->
+</li>
+</ul>
+<h3 id="内容简记"><a href="#内容简记" class="headerlink" title="内容简记"></a>内容简记</h3><h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><figure class="image-bubble">
+                <div class="img-lightbox">
+                    <div class="overlay"></div>
+                    <img src="https://raw.githubusercontent.com/sherlockbear/picrepo/master/img/2020-03-13_Mendeley_Desktop_28.png" alt title>
+                </div>
+                <div class="image-caption"></div>
+            </figure>
+<h3 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h3>
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    最后更新时间：<time datetime="2020-04-11T08:53:07.772Z" itemprop="dateUpdated">2020-04-11 16:53:07</time>
+</span><br>
+
+
+        
+        本文作者： Kang Yachen 本文链接： <a href="/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/" target="_blank" rel="external">https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/</a> 转载请注明出处
+        
+    </div>
+    
+    <footer>
+        <a href="https://sherlockbear.github.io">
+            <img src="/img/avatar.jpg" alt="Kang Yachen">
+            Kang Yachen
+        </a>
+    </footer>
+</blockquote>
+
+        
+
+
+        <div class="post-footer">
+            
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/&title=《Fast Task Inference with Variational Intrinsic Successor Features》 — Hamish的科研blog&pic=https://sherlockbear.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/&title=《Fast Task Inference with Variational Intrinsic Successor Features》 — Hamish的科研blog&source=摘要已经确定，张成马尔可夫决策过程可控子空间的多样性行为可以通过奖励与其他policy有区别的policy来训练(Gregor et al., 2016;..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Fast Task Inference with Variational Intrinsic Successor Features》 — Hamish的科研blog&url=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/&via=https://sherlockbear.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2020/03/19/Contrastive-Learning-of-Structured-World-Models/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Contrastive Learning of Structured World Models</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2020/03/06/ICLR2020-Reinforcement-Learning-Reading-List/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">ICLR2020 Reinforcement Learning Reading List</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section class="comments" id="comments">
+    <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+        var id = location.pathname
+        if (location.pathname.length > 50) {
+          id = location.pathname.replace(/\/\d+\/\d+\/\d+\//, '').replace('/', '').substring(0, 50)
+        }
+        const gitalk = new Gitalk({
+          clientID: 'acc13bb9287721dc399c',
+          clientSecret: '6b291913ac95fa96b3d3d1b23efd53d4bb162c08',
+          repo: 'blogcomment',
+          owner: 'sherlockbear',
+          admin: ['sherlockbear'],
+          id: id,      // Ensure uniqueness and length less than 50
+          title: document.title.split('|')[0],
+          distractionFreeMode: false  // Facebook-like distraction free mode
+        })
+
+        gitalk.render('gitalk-container')
+    </script>
+</section>
+
+
+
+
+</article>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>博客内容遵循 <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">知识共享 署名 - 非商业性 - 相同方式共享 4.0 国际协议</a></span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>Kang Yachen &copy; 2015 - 2020</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/&title=《Fast Task Inference with Variational Intrinsic Successor Features》 — Hamish的科研blog&pic=https://sherlockbear.github.io/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/&title=《Fast Task Inference with Variational Intrinsic Successor Features》 — Hamish的科研blog&source=摘要已经确定，张成马尔可夫决策过程可控子空间的多样性行为可以通过奖励与其他policy有区别的policy来训练(Gregor et al., 2016;..." data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Fast Task Inference with Variational Intrinsic Successor Features》 — Hamish的科研blog&url=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/&via=https://sherlockbear.github.io" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=https://sherlockbear.github.io/2020/03/19/Fast-Task-Inference-with-Variational-Intrinsic-Successor-Features/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQ4AAAEOCAAAAABd2qZ5AAAD40lEQVR42u3aSW7jQBAEQP3/056rgTGpzKqmFyB4EgSx2R08lGp5veLr49P1+Zvk89W9V9f/6+x3ePjCgQMHDhzxQskBcoL7X+Z7u1r5/ontC8CBAwcOHGc5kq3c33X/zf0x8mPP4JIz4sCBAweOn+VoE6p2nSS1uw+ZOHDgwIHjr3AkYewJiBwdBw4cOHD8Bo68CTTbRFKwy9dJgu7jtVIcOHDgwPE+chXtn7/1+ZH5Dhw4cODAESRLeUBKwlUb/PIAnCeNxelw4MCBA8eaIw9I7Rb3xcEWtC0sXuLiwIEDB44FR1s+a0uEeesoD8/t8EQ+NocDBw4cOM5y5FjJiMAsQOZAmxGHy6fjwIEDB45DHO3m8jG7WRDNC4L7sbk3tVIcOHDgwLHgOFUc3KRt7S/zJC0J9jhw4MCB4wmOWaq2GSxo0dskMw/AOHDgwIFjz9He1o6vzYYbknRrA/cmTcWBAwcOHEc52gJfmzJtAvy+ZBldOHDgwIFjzTErw7UjC6dCaVscnIVqHDhw4MCx4XhiYG4/jnCq0dXuFgcOHDhwbDiKZky86TwNa9OtdvyifWE4cODAgeMUxyYZ24fVtoE0Szhx4MCBA8f3cGzCUlKM23d8TiVyReKKAwcOHDgWHPmQQT5eMGtNtSN6yV+BmgkHDhw4cBzlyANwO+i2GWtoifP1v3gWDhw4cOA4xNEGqtldZ0t4OUEdaHHgwIEDxyGO1/q6p6nHC4Id7ttjOHDgwIHjOY598S6HPhWG2yGMN68HBw4cOHCsOfKeS5u8JfErLzK2BcEZEw4cOHDgeI4jGSPItzIL4XmLaxP+L1fDgQMHDhwjjjb1yktyyQDB2XGE5AXU/zVw4MCBA0fJ0Ya0PKFqC3P5s/brR2EeBw4cOHCMODZDAPl2c6w2bZutc3kuHDhw4MDxAEd+sFlRLw/tbeI3+2b4XwMHDhw4cIzKfPs06WyDalYczEcfcODAgQPHnmM2EjcbbkjuzXHzBK8tMuLAgQMHjg1HW+A7VUZMNj1rHW2eiwMHDhw4TnHkBb7NNdtoEuDzfUZtJxw4cODAseCYjQtsDtCG6nblzV8BHDhw4MCx5/gor2RQYJ9itSNuRZKWh1gcOHDgwHGmW3Qg7LWHSYJ68sR8/U14xoEDBw4cCcdmDmIziLYZepgNNAzfPA4cOHDgGHG0gSpPvWbFwVNJWntqHDhw4MDxsxxtE6gNqG0Jsn3iF0/HgQMHDhy/gKP9Jm9xtaF93wzDgQMHDhynOJIbko3ODpMHy+T3efhftZ1w4MCBA8d6oCEZJkgKgrNhhdlLSnaFAwcOHDgOcfwDx7oBkxFX3I4AAAAASUVORK5CYII=" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: false };
+
+
+</script>
+
+<script src="/js/main.min.js?v=1.7.2"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="/js/search.min.js?v=1.7.2" async></script>
+
+
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+
+
+
+</body>
+</html>
